@@ -237,7 +237,8 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
       const activeRegion : any = {
         id,
         name,
-        features: region?.svg?.getFeatures()
+        features: region?.svg?.getFeatures(),
+        points: retransformPointsByIdentityID(region.svg.points, scene.identityID)
       };
 
       if(!id) {

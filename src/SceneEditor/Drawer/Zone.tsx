@@ -14,11 +14,11 @@ import { ActiveRegion } from '../SceneEditor.d';
 export class Zone {
   public static type: number = 2;
   public id: number | null;
+  public points: number[][];
 
   private draw: Svg;
   private zoneContainer: G;
   private polygon: Polygon;
-  private points: number[][];
   private pointHandles: G;
 
   constructor(draw: Svg, initialPoints: number[][], activeRegion : ActiveRegion, features : object) {

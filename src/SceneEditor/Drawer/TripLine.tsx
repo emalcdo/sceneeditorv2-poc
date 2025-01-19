@@ -25,6 +25,7 @@ export class TripLine {
   public id: number;
   public sensitivity: number;
   public inversed : boolean;
+  public points: number[][];
 
   private _sensitivity: number;
   private _inversed : boolean;
@@ -32,7 +33,6 @@ export class TripLine {
   private draw: Svg;
   private triplineContainer: G;
   private polyline: Polyline;
-  private points: number[][];
   private pointHandles: G;
   private triplineBG: Polygon;
   private triplineLeftLine: Line;
