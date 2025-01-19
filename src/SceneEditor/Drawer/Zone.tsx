@@ -18,7 +18,7 @@ export class Zone {
   private points: number[][];
   private pointHandles: G;
 
-  constructor(draw: Svg, initialPoints: number[][], activeRegion : ActiveRegion) {
+  constructor(draw: Svg, initialPoints: number[][], activeRegion : ActiveRegion, features : object) {
     this.draw = draw;
 
     // Create the polygon
@@ -133,6 +133,14 @@ export class Zone {
   // Method to render form
   public renderForm() {
     return null;
+  }
+
+  // Method to backup values
+  public backup(): void {
+  }
+
+  // Method to restore values from backup and update tripline visual
+  public restore(): void {
   }
 
   // Method to destroy the instance

@@ -16,5 +16,8 @@ export type ActiveRegion = {
 export type Scene = {
   id: number | null;
   name: string;
-  activeRegions: ActiveRegion[]
+  regions: ActiveRegion[],
+  sceneImage: string,
+  identityID: number | null,
+  _unsanitizedSceneObj: object | null,
 };

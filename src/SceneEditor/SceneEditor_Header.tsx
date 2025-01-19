@@ -7,7 +7,15 @@ const SceneEditor_Header: React.FC = () => {
   return (
     <div>
       <p>Header</p>
-      <div>{scene.name}&nbsp;</div>
+      <div>
+        {scene.id ?
+          <>
+            {scene.name ? scene.name : 'No Scene'}
+          </>
+          :
+          'No Scene Loaded'
+        }
+      </div>
     </div>
   )
 };

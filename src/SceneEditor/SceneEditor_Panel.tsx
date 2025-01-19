@@ -27,10 +27,10 @@ const SceneEditor_Panel: React.FC = () => {
       <label htmlFor="sceneNameInput">Scene Name: </label>
       <input id="sceneNameInput" type="text" value={scene.name} onChange={changeSceneNameF} />
       <p>Active Regions</p>
-      {scene.activeRegions.length === 0 && "No Active Regions"}
-      {scene.activeRegions.length > 0 &&
+      {scene.regions.length === 0 && "No Active Regions"}
+      {scene.regions.length > 0 &&
         <>
-          {scene.activeRegions.map((activeRegion) => {
+          {scene.regions.map((activeRegion) => {
             return (
               <div key={`activeRegion-${activeRegion.id}`} id={`activeRegion-${activeRegion.id}`}>
                 {activeRegion.id} - {activeRegion.name} : {activeRegion.type}

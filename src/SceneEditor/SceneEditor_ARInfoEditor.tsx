@@ -1,8 +1,9 @@
-import React, { FormEvent } from 'react';
+import React, { useState, FormEvent } from 'react';
 import {  useSceneEditorContext } from './SceneEditorProvider';
 
 const SceneEditor_ARInfoEditor: React.FC = () => {
-  const { arToEditInfo, setARToEditInfo, removeActiveRegion } = useSceneEditorContext();
+  const { arToEditInfo, setARToEditInfo, updateActiveRegion, removeActiveRegion } = useSceneEditorContext();
+  const [rerenderingForm, setReRenderingForm] = useState<boolean>(false);
 
   if(!arToEditInfo) return;
 
@@ -13,7 +14,18 @@ const SceneEditor_ARInfoEditor: React.FC = () => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    console.log(e);
+    const { activeRegion: { id, ...otherInfo } } = arToEditInfo;
+
+    // console.log(e);
+    // Handle here the validation
+    if(id) {
+      updateActiveRegion(id, {
+        ...otherInfo,
+        id,
+        name: e.target?.name?.value,
+      })
+      setARToEditInfo(null);
+    }
   };
 
   const removeActiveRegionF = () => {
@@ -22,22 +34,46 @@ const SceneEditor_ARInfoEditor: React.FC = () => {
       removeActiveRegion(id);
     }
   };
+  const revertARToEditInfoF = () => {
+    const { activeRegion: { svg } } = arToEditInfo;
+    if(svg) {
+      svg.restore();
+
+      // Use setTimeout to rerender renderForm()
+      setReRenderingForm(true);
+      setTimeout( () => {
+        setReRenderingForm(false);
+      }, 1);
+    }
+  };
+
+  const cancelARToEditInfoF = () => {
+    const { activeRegion: { svg } } = arToEditInfo;
+    if(svg) {
+      svg.restore();
+    }
+    setARToEditInfo(null);
+  };
 
   return (
     <div>
       <p>{mode} AR</p>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Name: </label>
-          <input type="text" id="name" name="name" defaultValue={arToEditInfo.activeRegion.name} />
-        </div>
-        {arToEditInfo.activeRegion.svg?.renderForm()}
-        <button type='submit'>Submit</button>
-      </form>
+      {!rerenderingForm &&
+        <form onSubmit={handleSubmit} autoComplete='off'>
+          <div>
+            <label htmlFor="name">Name: </label>
+            <input type="text" id="name" name="name" defaultValue={arToEditInfo.activeRegion.name} />
+          </div>
+          
+          {/* Call AR renderForm function */}
+          {arToEditInfo.activeRegion.svg?.renderForm()}
+
+          <button type='submit'>Submit</button>
+        </form>
+        }
       <div>
-        <button type="button" onClick={() => { setARToEditInfo(null); }}>Update</button>
-        <button type="button" onClick={() => { setARToEditInfo(null); }}>Revert</button>
-        <button type="button" onClick={() => { setARToEditInfo(null); }}>Cancel</button>
+        <button type="button" onClick={revertARToEditInfoF}>Revert</button>
+        <button type="button" onClick={cancelARToEditInfoF}>Cancel</button>
         <button type="button" onClick={removeActiveRegionF}>Remove</button>
       </div>
     </div>

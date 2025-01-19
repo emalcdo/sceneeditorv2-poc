@@ -4,8 +4,8 @@ import '@svgdotjs/svg.draggable.js';
 import './svg.draw.js/svg.draw.js';
 
 // Add ARs here
-import { TripLineDrawer } from './TripLine.js';
-import { ZoneDrawer } from './Zone.js';
+import { TripLine, TripLineDrawer } from './TripLine.js';
+import { Zone, ZoneDrawer } from './Zone.js';
 
 // Add Functions for Another AR here
 const ARDrawers = {
@@ -32,6 +32,28 @@ export class Drawer {
 
   public clear() {
     this.svgContainer?.clear();
+  }
+};
+
+export function getActiveRegionTypeByID(id: number) {
+  switch(id) {
+    case 0:
+      return 'tripline';
+    case 2:
+      return 'zone';
+    default:
+      return '';
+  }
+};
+
+export function getActiveRegionClassTypeByType(id: number) {
+  switch(id) {
+    case 0:
+      return TripLine;
+    case 2:
+      return Zone;
+    default:
+      return Zone;
   }
 };
 

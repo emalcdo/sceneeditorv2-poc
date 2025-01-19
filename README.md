@@ -1,4 +1,7 @@
-# React + TypeScript + Vite
+# Scene Editor V2 Exploration (Vite + React + TS)
+
+This is a prototype or a proof of concept implementing the update and changes of Scene Editor V2 with a simple Scene Editor
+
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

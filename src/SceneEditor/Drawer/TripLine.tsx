@@ -15,6 +15,8 @@ import { ActiveRegion } from '../SceneEditor.d';
 import { FormEvent } from 'react';
 
 const TRIPLINEDEFAULTSENSITIVITY = 30;
+const TRIPLINEMINSENSITIVITY = 1;
+const TRIPLINEMAXSENSITIVITY = 50;
 const TRIPLINEDEFAULTINVERSED = false;
 
 // Create a custom class extending SVG.js elements
@@ -36,15 +38,15 @@ export class TripLine {
   private triplineRightLine: Line;
   private triangle: Polygon; // Triangle
 
-  constructor(draw: Svg, initialPoints: number[][], activeRegion : ActiveRegion) {
+  constructor(draw: Svg, initialPoints: number[][], activeRegion : ActiveRegion, features: object) {
     this.draw = draw;
 
     this.id = activeRegion.id;
     // TripLine Visual
-    this.sensitivity = TRIPLINEDEFAULTSENSITIVITY;
-    this.inversed = TRIPLINEDEFAULTINVERSED;
-    this._sensitivity = TRIPLINEDEFAULTSENSITIVITY;
-    this._inversed = TRIPLINEDEFAULTINVERSED;
+    this.sensitivity = features.hasOwnProperty('sensitivity') ? features.sensitivity : TRIPLINEDEFAULTSENSITIVITY;
+    this.inversed = features.hasOwnProperty('inversed') ? features.inversed : TRIPLINEDEFAULTINVERSED;
+    this._sensitivity = features.hasOwnProperty('sensitivity') ? features.sensitivity : TRIPLINEDEFAULTSENSITIVITY;
+    this._inversed = features.hasOwnProperty('inversed') ? features.inversed : TRIPLINEDEFAULTINVERSED;
 
     this.triplineBG = this.draw.polygon()
       .attr({
@@ -224,7 +226,16 @@ export class TripLine {
   public renderForm() {
 
     const setSensitivityF = (e: FormEvent) => {
-      this.setSensitivity(parseInt(e.target.value, 10));
+      let sensitivity = parseInt(e.target.value, 10);
+
+      if(sensitivity < TRIPLINEMINSENSITIVITY) {
+        sensitivity = TRIPLINEMINSENSITIVITY;
+      } else if (sensitivity > TRIPLINEMAXSENSITIVITY) {
+        sensitivity = TRIPLINEMAXSENSITIVITY;
+      }
+
+      e.target.value = sensitivity;
+      this.setSensitivity(sensitivity);
     };
 
     const setInversedF = (e: FormEvent) => {
@@ -235,7 +246,7 @@ export class TripLine {
       <>
         <div>
           <label htmlFor="sensitivity">Sensitivity: </label>
-          <input type='text' id='sensitivity' name='sensitivity' defaultValue={this.sensitivity} onChange={setSensitivityF} />
+          <input type='number' id='sensitivity' name='sensitivity' min={TRIPLINEMINSENSITIVITY} max={TRIPLINEMAXSENSITIVITY} defaultValue={this.sensitivity} onChange={setSensitivityF} />
         </div>
         <div>
           <label htmlFor="inversed">Inversed: </label>
@@ -246,13 +257,13 @@ export class TripLine {
   }
 
   // Method to backup values
-  public backup() {
+  public backup(): void {
     this._sensitivity = this.sensitivity;
     this._inversed = this.inversed;
   }
 
   // Method to restore values from backup and update tripline visual
-  public restore() {
+  public restore(): void {
     this.sensitivity = this._sensitivity;
     this.inversed = this._inversed;
     this.updateTriplineVisualization();
