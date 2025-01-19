@@ -8,6 +8,7 @@ export type Coordinate = {
 
 export type ActiveRegion = {
   id: number | null;
+  tempID: number;
   name: string;
   type: string;
   svg: TripLine | Zone | null

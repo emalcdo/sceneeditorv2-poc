@@ -37,9 +37,9 @@ export class Drawer {
 
 export function getActiveRegionTypeByID(id: number) {
   switch(id) {
-    case 0:
+    case TripLine.type:
       return 'tripline';
-    case 2:
+    case Zone.type:
       return 'zone';
     default:
       return '';
@@ -48,9 +48,9 @@ export function getActiveRegionTypeByID(id: number) {
 
 export function getActiveRegionClassTypeByType(id: number) {
   switch(id) {
-    case 0:
+    case TripLine.type:
       return TripLine;
-    case 2:
+    case Zone.type:
       return Zone;
     default:
       return Zone;

@@ -1,4 +1,4 @@
-import React, { FormEvent } from 'react';
+import React, { FormEvent, useState } from 'react';
 import {  useSceneEditorContext } from './SceneEditorProvider';
 
 const sampleScene = {
@@ -128,28 +128,38 @@ const sampleScene = {
 
 const SceneEditor_SceneDebugger: React.FC = () => {
 
-  const { loadScene, clearScene } = useSceneEditorContext();
+  const { loadScene, clearScene, saveScene } = useSceneEditorContext();
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleLoadSceneSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    const sceneObj = JSON.parse(e.target?.sceneObj?.value)
-    loadScene(true, sceneObj);
+    const inputSceneObj = JSON.parse(e.target?.inputScene?.value)
+    loadScene(true, inputSceneObj);
   };
 
   const clearSceneF = () => {
     clearScene();
   };
 
+  const [outputScene, setOutputScene] = useState<string>('');
+  const generateOutputSceneF = () => {
+    setOutputScene(JSON.stringify(saveScene(true), '' , 2))
+  };
+
   return (
     <div>
       <p>Debugger</p>
       
-      <form onSubmit={handleSubmit} autoComplete='off'>
-        <textarea id='sceneObj' name='sceneObj' rows={20} style={{ width: '500px', display: 'block' }} defaultValue={JSON.stringify(sampleScene, '' , 2)} />
+      <form onSubmit={handleLoadSceneSubmit} autoComplete='off'>
+        <textarea id='inputScene' name='inputScene' rows={20} style={{ width: '500px', display: 'block' }} defaultValue={JSON.stringify(sampleScene, '' , 2)} />
         <button type='submit'>Load Scene</button>
         <button type='button' onClick={clearSceneF}>Clear Scene</button>
       </form>
+
+      <div>
+        <textarea id='outputScene' name='outputScene' rows={20} style={{ width: '500px', display: 'block' }} value={outputScene} readOnly />
+        <button type='button' onClick={generateOutputSceneF}>Save Scene</button>
+      </div>
     </div>
   )
 };

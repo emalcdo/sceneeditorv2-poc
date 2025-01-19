@@ -14,15 +14,15 @@ const SceneEditor_ARInfoEditor: React.FC = () => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const { activeRegion: { id, ...otherInfo } } = arToEditInfo;
+    const { activeRegion: { tempID, ...otherInfo } } = arToEditInfo;
 
     // console.log(e);
     // Handle here the validation
-    if(id) {
-      updateActiveRegion(id, {
+    if(tempID) {
+      updateActiveRegion(tempID, {
         ...otherInfo,
-        id,
         name: e.target?.name?.value,
+        tempID
       })
       setARToEditInfo(null);
     }

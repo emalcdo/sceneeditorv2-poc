@@ -23,6 +23,7 @@ export type SceneEditorContextType = {
   arToEditInfo: ARToEditInfo | null;
   setARToEditInfo: (arToEditInfo: ARToEditInfo | null) => void;
   clearScene: () => void;
+  saveScene: (asObj: boolean) => string;
 };
 
 type ARToEditInfo = {
@@ -120,6 +121,7 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
         const type = getActiveRegionTypeByID(typeID);
         const activeRegion : ActiveRegion = {
           id,
+          tempID: id,
           name,
           type,
           svg: null
@@ -168,18 +170,18 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
   };
 
   // Function to update an active region by id
-  const updateActiveRegion = (id: number, updatedActiveRegion: ActiveRegion) => {
+  const updateActiveRegion = (tempID: number, updatedActiveRegion: ActiveRegion) => {
     setScene((prev) => ({
       ...prev,
       regions: prev.regions.map((activeRegion) => 
-        activeRegion.id === id ? { ...activeRegion, ...updatedActiveRegion } : activeRegion
+        activeRegion.tempID === tempID ? { ...activeRegion, ...updatedActiveRegion } : activeRegion
       )
     }));
   };
 
   // Function to remove an active region by id
-  const removeActiveRegion = (id: number) => {
-    const activeRegion = scene.regions.find((activeRegion) => activeRegion.id === id);
+  const removeActiveRegion = (tempID: number) => {
+    const activeRegion = scene.regions.find((activeRegion) => activeRegion.id === tempID);
     if(activeRegion) {
       activeRegion.svg?.destroy();
     }
@@ -223,6 +225,31 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
     });
   };
 
+  // Function to save scene
+  const saveScene = (asObj: boolean = false) => {
+    let scenePayload = {
+      id: scene.id,
+      name: scene.name,
+      regions: []
+    };
+    scenePayload.regions = scene.regions.map(region => {
+      const { id, name } = region;
+      const activeRegion : any = {
+        id,
+        name,
+        features: region?.svg?.getFeatures()
+      };
+
+      if(!id) {
+        delete activeRegion.id;
+      }
+
+      return activeRegion;
+    });
+
+    if(asObj) return scenePayload;
+  };
+
   // Context Value
   const contextValue: SceneEditorContextType = {
     scene,
@@ -235,7 +262,8 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
     removeAllActiveRegions,
     arToEditInfo,
     setARToEditInfo,
-    clearScene
+    clearScene,
+    saveScene
   };
 
   return <SceneEditorContext.Provider value={contextValue}>{children}</SceneEditorContext.Provider>;
@@ -334,6 +362,27 @@ function transformPointsByIdentityID(rawPoints: number[][] | number[], identityI
     }
     else {
       return rawPoints;
+    }
+  }
+};
+
+// Function to retransform points based on feeder identity
+function retransformPointsByIdentityID(points: number[][] | number[], identityID:  number) {
+  if(is2DArray(points)){
+    if(identityID === 1) return points;
+    else if(identityID === 2) {
+      return points.map(pointsSubArray => pointsSubArray.map(value => value * (1/ZOOMFOREDGELESS)))
+    }
+    else {
+      return points;
+    }
+  } else {
+    if(identityID === 1) return points;
+    else if(identityID === 2) {
+      return points.map(value => value * (1/ZOOMFOREDGELESS))
+    }
+    else {
+      return points;
     }
   }
 };

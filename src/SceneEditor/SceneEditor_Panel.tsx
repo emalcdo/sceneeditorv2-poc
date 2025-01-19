@@ -32,7 +32,7 @@ const SceneEditor_Panel: React.FC = () => {
         <>
           {scene.regions.map((activeRegion) => {
             return (
-              <div key={`activeRegion-${activeRegion.id}`} id={`activeRegion-${activeRegion.id}`}>
+              <div key={`activeRegion-${activeRegion.tempID}`} id={`activeRegion-${activeRegion.tempID}`}>
                 {activeRegion.id} - {activeRegion.name} : {activeRegion.type}
                 <button type="button" onClick={() => { setARToEditInfoF(activeRegion); }}>Edit</button>
                 <button type="button" onClick={() => { removeActiveRegionF(activeRegion); }}>Remove</button>

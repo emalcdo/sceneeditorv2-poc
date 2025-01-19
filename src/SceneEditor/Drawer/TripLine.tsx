@@ -21,7 +21,8 @@ const TRIPLINEDEFAULTINVERSED = false;
 
 // Create a custom class extending SVG.js elements
 export class TripLine {
-  public id: number | null;
+  public static type: number = 0;
+  public id: number;
   public sensitivity: number;
   public inversed : boolean;
 
@@ -41,7 +42,7 @@ export class TripLine {
   constructor(draw: Svg, initialPoints: number[][], activeRegion : ActiveRegion, features: object) {
     this.draw = draw;
 
-    this.id = activeRegion.id;
+    this.id = activeRegion.tempID;
     // TripLine Visual
     this.sensitivity = features.hasOwnProperty('sensitivity') ? features.sensitivity : TRIPLINEDEFAULTSENSITIVITY;
     this.inversed = features.hasOwnProperty('inversed') ? features.inversed : TRIPLINEDEFAULTINVERSED;
@@ -254,6 +255,15 @@ export class TripLine {
         </div>
       </>
     )
+  }
+
+  // Method to get features value (on saving)
+  public getFeatures(): object {
+    return {
+      type: TripLine.type,
+      sensitivity: this.sensitivity,
+      inversed: this.inversed
+    }
   }
 
   // Method to backup values

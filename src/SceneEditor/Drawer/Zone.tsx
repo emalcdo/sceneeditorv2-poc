@@ -12,6 +12,9 @@ import { ActiveRegion } from '../SceneEditor.d';
 
 // Create a custom class extending SVG.js elements
 export class Zone {
+  public static type: number = 2;
+  public id: number | null;
+
   private draw: Svg;
   private zoneContainer: G;
   private polygon: Polygon;
@@ -21,6 +24,7 @@ export class Zone {
   constructor(draw: Svg, initialPoints: number[][], activeRegion : ActiveRegion, features : object) {
     this.draw = draw;
 
+    this.id = activeRegion.tempID;
     // Create the polygon
     this.polygon = this.draw
       .polygon(initialPoints)
@@ -133,6 +137,13 @@ export class Zone {
   // Method to render form
   public renderForm() {
     return null;
+  }
+
+  // Method to get features value (on saving)
+  public getFeatures(): object {
+    return {
+      type: Zone.type
+    }
   }
 
   // Method to backup values

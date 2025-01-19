@@ -69,7 +69,8 @@ const SceneEditor_Workspace: React.FC = () => {
 
   const drawTripLineClassF = (points: number[][]) => {
     const tripline: ActiveRegion  = {
-      id: faker.number.int({ min: 1, max: 10000 }), 
+      id: null,
+      tempID: faker.number.int({ min: 1, max: 10000 }), 
       name: `${faker.word.adverb()} ${faker.word.adjective()}`, 
       type: 'tripline',
       svg: null
@@ -80,7 +81,8 @@ const SceneEditor_Workspace: React.FC = () => {
 
   const drawZoneClassF = (points: number[][]) => {
     const zone: ActiveRegion  = {
-      id: faker.number.int({ min: 1, max: 10000 }),
+      id: null,
+      tempID: faker.number.int({ min: 1, max: 10000 }),
       name: `${faker.word.adverb()} ${faker.word.adjective()}`,
       type: 'zone',
       svg: null
