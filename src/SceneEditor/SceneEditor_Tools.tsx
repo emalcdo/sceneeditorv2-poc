@@ -3,7 +3,7 @@ import { useSceneEditorContext } from './SceneEditorProvider';
 
 const SceneEditor_Tools: React.FC = () => {
 
-  const { drawerRef } = useSceneEditorContext();
+  const { drawerRef, scene } = useSceneEditorContext();
 
   const drawZoneF = () => {
     if(drawerRef.current) {
@@ -28,9 +28,9 @@ const SceneEditor_Tools: React.FC = () => {
       <h3>Tools</h3>
       <button type='button' disabled>Hand Tool</button>
       <button type='button' disabled>Select Tool</button>
-      <button type='button' onClick={drawTripLineF}>Draw Trip Line Tool</button>
-      <button type='button' onClick={drawZoneF}>Draw Zone Tool</button>
-      <button type='button' onClick={drawDestinationF}>Draw Destination Tool</button>
+      <button type='button' onClick={drawTripLineF} disabled={!scene.id}>Draw Trip Line Tool</button>
+      <button type='button' onClick={drawZoneF} disabled={!scene.id}>Draw Zone Tool</button>
+      <button type='button' onClick={drawDestinationF} disabled={!scene.id}>Draw Destination Tool</button>
     </section>
   )
 };

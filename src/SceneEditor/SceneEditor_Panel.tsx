@@ -43,6 +43,7 @@ const SceneEditor_Panel: React.FC = () => {
           name="serviceApplets" 
           value={activeServiceApplet?.appID} 
           onChange={handleChangeActiveServiceAppletF}
+          disabled={!scene.id}
         >
           {serviceAppletsOptions.map((serviceAppletsOption) => (
             <option key={`serviceApplets-${serviceAppletsOption.appID}`} value={serviceAppletsOption.appID}>
@@ -54,7 +55,7 @@ const SceneEditor_Panel: React.FC = () => {
 
       <div>
         <label htmlFor="sceneNameInput">Scene Name: </label>
-        <input id="sceneNameInput" type="text" value={scene.name} onChange={changeSceneNameF} />
+        <input id="sceneNameInput" type="text" value={scene.name} onChange={changeSceneNameF} disabled={!scene.id} />
       </div>
 
       <h4>Active Regions</h4>

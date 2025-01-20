@@ -3,12 +3,14 @@ import {
   // SVG, 
   Polygon, 
   // Circle, 
-  G 
+  G, 
+  Image
 } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.draggable.js';
 
 import { Drawer } from "./Drawer";
 import { ActiveRegion } from '../SceneEditor.d';
+import destinationPin from './destination_pin.svg';
 
 // Create a custom class extending SVG.js elements
 export class Destination {
@@ -21,6 +23,7 @@ export class Destination {
   private destinationContainer: G;
   private polygon: Polygon;
   private pointHandles: G;
+  private destinationPinImage: Image
 
   constructor(draw: Svg, initialPoints: number[][], activeRegion : ActiveRegion, features : object) {
     this.draw = draw;
@@ -44,10 +47,18 @@ export class Destination {
     // Create draggable points
     this.pointHandles = this.drawPoints(initialPoints);
 
+    // Destination Pin Image
+    this.destinationPinImage = this.draw.image(destinationPin).size(13.5, 24.75)
+
     // Group elements to container
     this.destinationContainer = this.draw.group().attr({ ...activeRegion });
     this.destinationContainer.add(this.polygon);
     this.destinationContainer.add(this.pointHandles);
+    this.destinationContainer.add(this.destinationPinImage);
+
+    // Update the Destination Pin Image center
+    const centroid : [number, number] | null = getCentroid(this.points);
+    this.destinationPinImage.center(centroid[0], centroid[1]);
 
     // Add drag listeners to update the polygon
     this.addDragListeners();
@@ -85,6 +96,10 @@ export class Destination {
 
         // Update the polygon's shape
         this.polygon.plot(this.points);
+
+        // Update the Destination Pin Image center
+        const centroid : [number, number] | null = getCentroid(this.points);
+        this.destinationPinImage.center(centroid[0], centroid[1]);
       });
     });
   }
@@ -103,6 +118,10 @@ export class Destination {
         const [newX, newY] = this.points[index];
         point.center(newX, newY);
       });
+
+      // Update the Destination Pin Image center
+      const centroid : [number, number] | null = getCentroid(this.points);
+      this.destinationPinImage.center(centroid[0], centroid[1]);
     });
   }
 
@@ -143,7 +162,7 @@ export class Destination {
   // Method to get features value (on saving)
   public getFeatures(): object {
     return {
-      type: Destination.type
+      type: Destination.typeID
     }
   }
 
@@ -227,3 +246,15 @@ export const DestinationDrawer = {
     this.drawing = null;
   }
 };
+
+// Function to get the centroid of all points
+function getCentroid(points: [number, number][]): [number, number] | null {
+  if (points.length === 0) return null;
+
+  const [sumX, sumY] = points.reduce(
+    ([accX, accY], [x, y]) => [accX + x, accY + y],
+    [0, 0]
+  );
+
+  return [sumX / points.length, sumY / points.length];
+}

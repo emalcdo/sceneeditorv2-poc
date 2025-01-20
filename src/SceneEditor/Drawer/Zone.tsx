@@ -143,7 +143,7 @@ export class Zone {
   // Method to get features value (on saving)
   public getFeatures(): object {
     return {
-      type: Zone.type
+      type: Zone.typeID
     }
   }
 

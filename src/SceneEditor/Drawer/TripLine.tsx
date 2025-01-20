@@ -261,7 +261,7 @@ export class TripLine {
   // Method to get features value (on saving)
   public getFeatures(): object {
     return {
-      type: TripLine.type,
+      type: TripLine.typeID,
       sensitivity: this.sensitivity,
       inversed: this.inversed
     }

@@ -276,6 +276,7 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
       regions: [],
       sceneImage: '',
       identityID: null,
+      serviceApplets: [],
       _unsanitizedSceneObj: null
     });
   };
@@ -285,7 +286,8 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
     let scenePayload = {
       id: scene.id,
       name: scene.name,
-      regions: []
+      regions: [],
+      usecase: activeServiceApplet?.code
     };
     scenePayload.regions = scene.regions.map(region => {
       const { id, name } = region;
