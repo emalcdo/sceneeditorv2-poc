@@ -4,13 +4,15 @@ import '@svgdotjs/svg.draggable.js';
 import './svg.draw.js/svg.draw.js';
 
 // Add ARs here
-import { TripLine, TripLineDrawer } from './TripLine.js';
-import { Zone, ZoneDrawer } from './Zone.js';
+import { TripLine, TripLineDrawer } from './TripLine';
+import { Zone, ZoneDrawer } from './Zone';
+import { Destination, DestinationDrawer } from './Destination';
 
 // Add Functions for Another AR here
 const ARDrawers = {
   ...TripLineDrawer,
   ...ZoneDrawer,
+  ...DestinationDrawer
 };
 
 export class Drawer {
@@ -37,10 +39,12 @@ export class Drawer {
 
 export function getActiveRegionTypeByID(id: number) {
   switch(id) {
-    case TripLine.type:
-      return 'tripline';
-    case Zone.type:
-      return 'zone';
+    case TripLine.typeID:
+      return TripLine.type;
+    case Zone.typeID:
+      return Zone.type;
+    case Destination.typeID:
+      return Destination.type;
     default:
       return '';
   }
@@ -48,10 +52,12 @@ export function getActiveRegionTypeByID(id: number) {
 
 export function getActiveRegionClassTypeByType(id: number) {
   switch(id) {
-    case TripLine.type:
+    case TripLine.typeID:
       return TripLine;
-    case Zone.type:
+    case Zone.typeID:
       return Zone;
+    case Destination.typeID:
+      return Destination;
     default:
       return Zone;
   }
@@ -67,4 +73,8 @@ export interface Drawer {
   drawStartZone(): void;
   drawEndZone(): void;
   drawCancelZone(): void;
+  drawStartDestinationKeyEvents(): void;
+  drawStartDestination(): void;
+  drawEndDestination(): void;
+  drawCancelDestination(): void;
 };

@@ -56,8 +56,8 @@ const SceneEditor_ARInfoEditor: React.FC = () => {
   };
 
   return (
-    <div>
-      <p>{mode} AR</p>
+    <section>
+      <h3>{mode} AR</h3>
       {!rerenderingForm &&
         <form onSubmit={handleSubmit} autoComplete='off'>
           <div>
@@ -76,7 +76,7 @@ const SceneEditor_ARInfoEditor: React.FC = () => {
         <button type="button" onClick={cancelARToEditInfoF}>Cancel</button>
         <button type="button" onClick={removeActiveRegionF}>Remove</button>
       </div>
-    </div>
+    </section>
   )
 };
 

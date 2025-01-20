@@ -85,7 +85,7 @@ export const lineable = {
 
       var p = this.p.matrixTransform(this.parent.node.getScreenCTM().inverse().multiply(this.el.node.getScreenCTM()))
 
-      this.set.push(this.parent.circle(15).stroke({ width: 1, color: 'transparent' }).fill('rgba(21, 101, 192, 1)').center(p.x, p.y))
+      this.set.push(this.parent.circle(15).stroke({ width: 1, color: 'rgba(0, 0, 0, 1)' }).fill('rgba(0, 0, 0, 0.5)').center(p.x, p.y))
     }
   },
 

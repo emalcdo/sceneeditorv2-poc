@@ -9,12 +9,14 @@ import React, {
 } from 'react';
 
 import { Drawer, getActiveRegionTypeByID, getActiveRegionClassTypeByType } from './Drawer/Drawer';
-import { Scene, ActiveRegion } from './SceneEditor.d';
+import { Scene, ActiveRegion, ServiceApplet } from './SceneEditor.d';
 
 export type SceneEditorContextType = {
   scene: Scene;
-  loadScene: (isTest: boolean, testSceneObj: any) => void;
+  loadScene: (isTest: boolean, testSceneObj: any, testFeeders: any) => void;
   drawerRef: React.MutableRefObject<Drawer | null>;
+  activeServiceApplet: ServiceApplet | null,
+  setActiveServiceApplet: (serviceApplet: ServiceApplet | null) => void;
   updateSceneName: (name: string) => void;
   addActiveRegion: (activeRegion: ActiveRegion) => void;
   updateActiveRegion: (id: number, activeRegion: ActiveRegion) => void;
@@ -23,7 +25,7 @@ export type SceneEditorContextType = {
   arToEditInfo: ARToEditInfo | null;
   setARToEditInfo: (arToEditInfo: ARToEditInfo | null) => void;
   clearScene: () => void;
-  saveScene: (asObj: boolean) => string;
+  saveScene: () => object;
 };
 
 type ARToEditInfo = {
@@ -46,16 +48,15 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
     regions: [],
     sceneImage: '',
     identityID: null,
+    serviceApplets: [],
     _unsanitizedSceneObj: null
   });
-
+  const [activeServiceApplet, setActiveServiceApplet] = useState<ServiceApplet | null>(null);
   const [arToEditInfo, setARToEditInfo] = useState<ARToEditInfo | null>(null);
-
   const drawerRef = useRef<Drawer | null>(null);
 
-  // Load Scene Function from API or using a testSceneObj
-  const loadScene = async(isTest: boolean = false, testSceneObj: any = {}) => {
-
+  // Load Scene Function from API or using a testSceneObj, testFeeders
+  const loadScene = async(isTest: boolean = false, testSceneObj: any = {}, testFeeders: any = []) => {
     // Clear workspace
     setScene({
       id: null,
@@ -63,13 +64,17 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
       regions: [],
       sceneImage: '',
       identityID: null,
+      serviceApplets: [],
       _unsanitizedSceneObj: null
     });
+    setActiveServiceApplet(null);
+    setARToEditInfo(null)
     drawerRef.current?.clear();
 
     // Wait for .5s
     await timeout(500);
 
+    // Load Scene
     let _unsanitizedSceneObj : any = {};
     if(!isTest) {
       // Get scene id from params
@@ -79,10 +84,36 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
     }
 
     // Set scene and map regions
-    const { id, name, feeder: { feeder_asset, identity: { id: identityID } } } = _unsanitizedSceneObj;
+    const { id, name, feeder: { id: feederID, feeder_asset, identity: { id: identityID } } } = _unsanitizedSceneObj;
 
     // Get Scene Image/Asset
     const sceneImage = feeder_asset?.[0]?.asset;
+
+    // Load Feeders to get available scenable service applets for the scene's feeder
+    let serviceApplets : ServiceApplet[] = [];
+    if(!isTest) {
+    } else {
+      const sceneFeeder = testFeeders.find((feederItem: any) => feederItem.id === feederID);
+      if(sceneFeeder) {
+        const sceneFeederServiceApplets = sceneFeeder?.apps || sceneFeeder?.sensor_apps;
+        const sceneFeederServiceAppletsScenable = sceneFeederServiceApplets.filter((app: any) => {
+          return app.app?.config?.scene;
+        });
+
+        if(sceneFeederServiceAppletsScenable.length) {
+          serviceApplets = sceneFeederServiceAppletsScenable.map((serviceApplet: any) => {
+            const { app_id: appID, app: { code, name, description, config: { logo } }} = serviceApplet;
+            return {
+              appID,
+              code,
+              name,
+              description,
+              logo
+            }
+          })
+        }
+      }
+    }
     
     setScene((prev) => ({
       ...prev,
@@ -90,8 +121,12 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
       name,
       sceneImage,
       identityID,
+      serviceApplets,
       _unsanitizedSceneObj
     }));
+    if(serviceApplets.length) {
+      setActiveServiceApplet(serviceApplets[0]);
+    }
   };
 
   // Function to setup scene
@@ -116,21 +151,26 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
     // Setup Active Regions
     if(scene._unsanitizedSceneObj.regions.length > 0) {
       const regions = scene._unsanitizedSceneObj.regions.map((region : any) => {
-        const { id, name, points: rawPoints, features} = region;
+        const { id, name, points: rawPoints, features, app_id: appID} = region;
         const { type : typeID } = features;
         const type = getActiveRegionTypeByID(typeID);
+        const app = scene.serviceApplets.find(serviceApplet => serviceApplet.appID === appID);
         const activeRegion : ActiveRegion = {
           id,
           tempID: id,
           name,
           type,
-          svg: null
+          svg: null,
+          app
         };
 
         const _typeClass = getActiveRegionClassTypeByType(typeID);
         const points = transformPointsByIdentityID(rawPoints, scene.identityID);
         const svg = new _typeClass(drawerRef.current?.svgContainer, points, activeRegion, features);
         activeRegion.svg = svg;
+
+        // Show/Hide Active Region based on activeServiceApplet
+        activeServiceApplet === activeRegion.app ? activeRegion.svg.show() : activeRegion.svg.hide();
 
         return activeRegion;
       });
@@ -143,11 +183,19 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
 
   };
 
+  // Run SetupScene on scene._unsanitizedSceneObj changes
   useEffect(() => {
     if(scene._unsanitizedSceneObj) {
       setupScene();
     }
   }, [scene._unsanitizedSceneObj]);
+
+  // Run showHideActiveRegions on scene._unsanitizedSceneObj changes
+  useEffect(() => {
+    if(activeServiceApplet) {
+      showHideActiveRegions();
+    }
+  }, [activeServiceApplet]);
 
   // Function to update scene name
   const updateSceneName = (name: string) => {
@@ -207,6 +255,13 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
     }));
   };
 
+  // Function to show hide active regions by activeServiceApplet
+  const showHideActiveRegions = () => {
+    scene.regions.forEach(activeRegion => {
+      activeServiceApplet === activeRegion.app ? activeRegion?.svg.show() : activeRegion?.svg.hide();
+    })
+  };
+
   // Function to clear scene
   const clearScene = () => {
     removeAllActiveRegions();
@@ -226,7 +281,7 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
   };
 
   // Function to save scene
-  const saveScene = (asObj: boolean = false) => {
+  const saveScene = () => {
     let scenePayload = {
       id: scene.id,
       name: scene.name,
@@ -248,7 +303,7 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
       return activeRegion;
     });
 
-    if(asObj) return scenePayload;
+    return scenePayload;
   };
 
   // Context Value
@@ -256,6 +311,8 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
     scene,
     loadScene,
     drawerRef,
+    activeServiceApplet,
+    setActiveServiceApplet,
     updateSceneName,
     addActiveRegion,
     updateActiveRegion,
@@ -351,7 +408,7 @@ function transformPointsByIdentityID(rawPoints: number[][] | number[], identityI
   if(is2DArray(rawPoints)){
     if(identityID === 1) return rawPoints;
     else if(identityID === 2) {
-      return rawPoints.map(rawPointsSubArray => rawPointsSubArray.map(value => value * ZOOMFOREDGELESS))
+      return rawPoints.map(rawPointsSubArray => rawPointsSubArray.map((value: number) => value * ZOOMFOREDGELESS))
     }
     else {
       return rawPoints;
@@ -372,7 +429,7 @@ function retransformPointsByIdentityID(points: number[][] | number[], identityID
   if(is2DArray(points)){
     if(identityID === 1) return points;
     else if(identityID === 2) {
-      return points.map(pointsSubArray => pointsSubArray.map(value => value * (1/ZOOMFOREDGELESS)))
+      return points.map(pointsSubArray => pointsSubArray.map((value: number) => value * (1/ZOOMFOREDGELESS)))
     }
     else {
       return points;

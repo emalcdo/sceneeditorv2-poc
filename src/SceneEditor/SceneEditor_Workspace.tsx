@@ -6,11 +6,12 @@ import { faker } from '@faker-js/faker';
 import { Drawer } from './Drawer/Drawer';
 import { TripLine } from './Drawer/TripLine';
 import { Zone } from './Drawer/Zone';
+import { Destination } from './Drawer/Destination';
 import { useSceneEditorContext, RESOLUTIONS } from './SceneEditorProvider';
 import { ActiveRegion } from './SceneEditor.d';
 
 const SceneEditor_Workspace: React.FC = () => {
-  const { drawerRef, addActiveRegion } = useSceneEditorContext();
+  const { drawerRef, addActiveRegion, activeServiceApplet } = useSceneEditorContext();
   const svgContainerRef = useRef<HTMLDivElement | null>(null);
   const SVGContainer = useMemo(() => SVG().size(RESOLUTIONS["16:9"].width, RESOLUTIONS["16:9"].height).attr({ style: `display: block`}), []);
 
@@ -50,13 +51,16 @@ const SceneEditor_Workspace: React.FC = () => {
 
   function handleDrawEnd(drawing: any) {
     switch(drawing.artype) {
-      case 'tripline':
+      case TripLine.type:
         if(drawing.points.length > 1) {
           drawTripLineClassF(drawing.points);
         }
         break;
-      case 'zone':
+      case Zone.type:
         drawZoneClassF(drawing.points);
+        break;
+      case Destination.type:
+        drawDestinationClassF(drawing.points);
         break;
       default:
         break;
@@ -72,8 +76,9 @@ const SceneEditor_Workspace: React.FC = () => {
       id: null,
       tempID: faker.number.int({ min: 1, max: 10000 }), 
       name: `${faker.word.adverb()} ${faker.word.adjective()}`, 
-      type: 'tripline',
-      svg: null
+      type: TripLine.type,
+      svg: null,
+      app: activeServiceApplet
     };
     tripline.svg = new TripLine(SVGContainer, points, tripline, {});
     addActiveRegion(tripline);
@@ -84,18 +89,32 @@ const SceneEditor_Workspace: React.FC = () => {
       id: null,
       tempID: faker.number.int({ min: 1, max: 10000 }),
       name: `${faker.word.adverb()} ${faker.word.adjective()}`,
-      type: 'zone',
-      svg: null
+      type: Zone.type,
+      svg: null,
+      app: activeServiceApplet
     }
     zone.svg = new Zone(SVGContainer, points, zone, {});
     addActiveRegion(zone);
   };
 
+  const drawDestinationClassF = (points: number[][]) => {
+    const destination: ActiveRegion  = {
+      id: null,
+      tempID: faker.number.int({ min: 1, max: 10000 }),
+      name: `${faker.word.adverb()} ${faker.word.adjective()}`,
+      type: Destination.type,
+      svg: null,
+      app: activeServiceApplet
+    }
+    destination.svg = new Destination(SVGContainer, points, destination, {});
+    addActiveRegion(destination);
+  };
+
   return (
-    <div>
-      <p>Canvas</p>
-      <div ref={svgContainerRef} style={{ border: '1px solid #ccc', display: 'inline-block' }}></div>
-    </div>
+    <section>
+      <h3>Workspace/Canvas</h3>
+      <div ref={svgContainerRef} style={{ border: '1px solid #ccc', display: 'inline-block', height: '480px' }}></div>
+    </section>
   );
 };
 export default SceneEditor_Workspace;

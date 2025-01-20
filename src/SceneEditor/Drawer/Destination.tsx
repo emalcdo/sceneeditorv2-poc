@@ -11,14 +11,14 @@ import { Drawer } from "./Drawer";
 import { ActiveRegion } from '../SceneEditor.d';
 
 // Create a custom class extending SVG.js elements
-export class Zone {
-  public static typeID: number = 4;
-  public static type: string = 'zone';
+export class Destination {
+  public static typeID: number = 6;
+  public static type: string = 'destination';
   public id: number | null;
   public points: number[][];
 
   private draw: Svg;
-  private zoneContainer: G;
+  private destinationContainer: G;
   private polygon: Polygon;
   private pointHandles: G;
 
@@ -30,10 +30,10 @@ export class Zone {
     this.polygon = this.draw
       .polygon(initialPoints)
       .attr({
-        'stroke': 'rgba(21, 101, 192, 1)',
+        'stroke': 'rgba(2, 143, 104, 1)',
         'stroke-width': 2,
         'stroke-dasharray': '5,5',
-        'fill': 'rgba(21, 101, 192, 0.5)',
+        'fill': 'rgba(2, 143, 104, 0.5)',
         'pointer-events': 'visiblePainted'
       })
       .draggable(); // Make the entire polygon draggable
@@ -45,15 +45,15 @@ export class Zone {
     this.pointHandles = this.drawPoints(initialPoints);
 
     // Group elements to container
-    this.zoneContainer = this.draw.group().attr({ ...activeRegion });
-    this.zoneContainer.add(this.polygon);
-    this.zoneContainer.add(this.pointHandles);
+    this.destinationContainer = this.draw.group().attr({ ...activeRegion });
+    this.destinationContainer.add(this.polygon);
+    this.destinationContainer.add(this.pointHandles);
 
     // Add drag listeners to update the polygon
     this.addDragListeners();
 
-    // Add drag listener to move the entire Zone
-    this.addZoneDragListener();
+    // Add drag listener to move the entire Destination
+    this.addDestinationDragListener();
   }
 
   // Method to draw draggable points
@@ -62,7 +62,7 @@ export class Zone {
     points.forEach(([x, y], index) => {
       const handle = this.draw
         .circle(15)
-        .fill('rgba(21, 101, 192, 1)')
+        .fill('rgba(2, 143, 104, 1)')
         .center(x, y)
         .draggable();
 
@@ -89,8 +89,8 @@ export class Zone {
     });
   }
 
-  // Add drag listener to move the entire Zone
-  private addZoneDragListener(): void {
+  // Add drag listener to move the entire Destination
+  private addDestinationDragListener(): void {
     this.polygon.on('dragmove', (event) => {
       const dx = event.detail.box.x - this.polygon.x();
       const dy = event.detail.box.y - this.polygon.y();
@@ -143,7 +143,7 @@ export class Zone {
   // Method to get features value (on saving)
   public getFeatures(): object {
     return {
-      type: Zone.type
+      type: Destination.type
     }
   }
 
@@ -151,18 +151,18 @@ export class Zone {
   public backup(): void {
   }
 
-  // Method to restore values from backup and update zone visual
+  // Method to restore values from backup and update destination visual
   public restore(): void {
   }
 
-  // Method to hide zone visual
+  // Method to hide destination visual
   public hide(): void {
-    this.zoneContainer.hide();
+    this.destinationContainer.hide();
   }
 
-  // Method to show zone visual
+  // Method to show destination visual
   public show(): void {
-    this.zoneContainer.show();
+    this.destinationContainer.show();
   }
 
   // Method to destroy the instance
@@ -172,7 +172,7 @@ export class Zone {
     this.pointHandles.children().forEach((point) => point.off());
 
     // Remove all SVG elements from the canvas
-    this.zoneContainer.remove();
+    this.destinationContainer.remove();
 
     // Clear references to avoid memory leaks
     this.polygon = null!;
@@ -181,20 +181,20 @@ export class Zone {
   }
 };
 
-export const ZoneDrawer = {
-  drawStartZoneKeyEvents(this: Drawer, e: KeyboardEvent) {
+export const DestinationDrawer = {
+  drawStartDestinationKeyEvents(this: Drawer, e: KeyboardEvent) {
     if (e.key === 'Enter') {
       this.drawing?.draw('done');
-      this.drawEndZone();
+      this.drawEndDestination();
     }
     if (e.key === 'Escape') {
       this.drawing?.off('drawstop');
       this.drawing?.draw('cancel');
-      this.drawCancelZone();
+      this.drawCancelDestination();
     }
   },
 
-  drawStartZone(this: Drawer) {
+  drawStartDestination(this: Drawer) {
     if(!this.drawing) {
       this.drawing = this.svgContainer?.['polygon']().draw({
         snapToGrid: 1,
@@ -202,27 +202,27 @@ export const ZoneDrawer = {
       });
     
       this.drawing?.attr({
-        'stroke': 'rgba(21, 101, 192, 1)',
+        'stroke': 'rgba(2, 143, 104, 1)',
         'stroke-width': 2,
         'stroke-dasharray': '5,5',
-        'fill': 'rgba(21, 101, 192, 0.5)',
+        'fill': 'rgba(2, 143, 104, 0.5)',
         'pointer-events': 'visiblePainted'
       });
   
-      window.addEventListener('keydown', this.drawStartZoneKeyEvents);
+      window.addEventListener('keydown', this.drawStartDestinationKeyEvents);
     }
   },
 
-  drawEndZone(this: Drawer) {
-    window.removeEventListener('keydown', this.drawStartZoneKeyEvents);
+  drawEndDestination(this: Drawer) {
+    window.removeEventListener('keydown', this.drawStartDestinationKeyEvents);
     this.emitter.emit('drawEnd', this.drawing);
-    this.emitter.emit('drawEnd', { drawing: this.drawing, artype: Zone.type, points: this.drawing?._array });
+    this.emitter.emit('drawEnd', { drawing: this.drawing, artype: Destination.type, points: this.drawing?._array });
     this.drawing?.remove();
     this.drawing = null;
   },
 
-  drawCancelZone(this: Drawer) {
-    window.removeEventListener('keydown', this.drawStartZoneKeyEvents);
+  drawCancelDestination(this: Drawer) {
+    window.removeEventListener('keydown', this.drawStartDestinationKeyEvents);
     this.emitter.emit('drawCancel', this.drawing);
     this.drawing = null;
   }

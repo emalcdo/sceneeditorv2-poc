@@ -2,21 +2,21 @@ import React from 'react';
 import {  useSceneEditorContext } from './SceneEditorProvider';
 
 const SceneEditor_Header: React.FC = () => {
-  const { scene } = useSceneEditorContext();
+  const { scene, activeServiceApplet } = useSceneEditorContext();
 
   return (
-    <div>
-      <p>Header</p>
+    <section>
+      <h3>Header</h3>
       <div>
         {scene.id ?
           <>
-            {scene.name ? scene.name : 'No Scene'}
+            {scene.name ? scene.name : 'No Scene'} - {activeServiceApplet?.name}
           </>
           :
           'No Scene Loaded'
         }
       </div>
-    </div>
+    </section>
   )
 };
 

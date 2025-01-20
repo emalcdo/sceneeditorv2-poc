@@ -21,7 +21,8 @@ const TRIPLINEDEFAULTINVERSED = false;
 
 // Create a custom class extending SVG.js elements
 export class TripLine {
-  public static type: number = 0;
+  public static typeID: number = 0;
+  public static type: string = 'tripline';
   public id: number;
   public sensitivity: number;
   public inversed : boolean;
@@ -56,7 +57,7 @@ export class TripLine {
         'stroke-dasharray': '5,5',
         'fill': 'rgba(21, 101, 192, 0.5)',
         'pointer-events': 'visiblePainted',
-        'artype': 'tripline'
+        'artype': TripLine.type
       });
     this.triplineLeftLine = this.draw.line()
       .fill('none')
@@ -279,6 +280,16 @@ export class TripLine {
     this.updateTriplineVisualization();
   }
 
+  // Method to hide tripline visual
+  public hide(): void {
+    this.triplineContainer.hide();
+  }
+
+  // Method to show tripline visual
+  public show(): void {
+    this.triplineContainer.show();
+  }
+
   // Method to destroy the instance
   public destroy(): void {
     // Remove all event listeners
@@ -329,7 +340,7 @@ export const TripLineDrawer = {
             'stroke-dasharray': '5,5',
             'fill': 'rgba(21, 101, 192, 0.5)',
             'pointer-events': 'visiblePainted',
-            'artype': 'tripline'
+            'artype': TripLine.type
           });
         this.svgContainer?.line()
           .id('temp-tripline-leftline')
@@ -387,7 +398,7 @@ export const TripLineDrawer = {
 
   drawEndTripLine(this: Drawer) {
     window.removeEventListener('keydown', this.drawStartTripLineKeyEvents);
-    this.emitter.emit('drawEnd', { drawing: this.drawing, artype: 'tripline', points: this.drawing?._array });
+    this.emitter.emit('drawEnd', { drawing: this.drawing, artype: TripLine.type, points: this.drawing?._array });
     this.svgContainer?.findOne('#temp-tripline-bg')?.remove();
     this.svgContainer?.findOne('#temp-tripline-leftline')?.remove();
     this.svgContainer?.findOne('#temp-tripline-rightline')?.remove();

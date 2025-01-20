@@ -6,12 +6,21 @@ export type Coordinate = {
   y: number;
 };
 
+export type ServiceApplet = {
+  appID: number;
+  code: string;
+  name: string;
+  description: string;
+  logo: string;
+};
+
 export type ActiveRegion = {
   id: number | null;
   tempID: number;
   name: string;
   type: string;
-  svg: TripLine | Zone | null
+  svg: TripLine | Zone | null,
+  app: ServiceApplet
 };
 
 export type Scene = {
@@ -20,5 +29,6 @@ export type Scene = {
   regions: ActiveRegion[],
   sceneImage: string,
   identityID: number | null,
+  serviceApplets: ServiceApplet[],
   _unsanitizedSceneObj: object | null,
 };

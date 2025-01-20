@@ -1,5 +1,5 @@
 import React from 'react';
-import {  useSceneEditorContext } from './SceneEditorProvider';
+import { useSceneEditorContext } from './SceneEditorProvider';
 
 const SceneEditor_Tools: React.FC = () => {
 
@@ -17,12 +17,21 @@ const SceneEditor_Tools: React.FC = () => {
     }
   };
 
+  const drawDestinationF = () => {
+    if(drawerRef.current) {
+      drawerRef?.current.drawStartDestination();
+    }
+  };
+
   return (
-    <div>
-      <p>Tools</p>
-      <button type='button' onClick={drawTripLineF}>Draw Trip Line</button>
-      <button type='button' onClick={drawZoneF}>Draw Zone</button>
-    </div>
+    <section>
+      <h3>Tools</h3>
+      <button type='button' disabled>Hand Tool</button>
+      <button type='button' disabled>Select Tool</button>
+      <button type='button' onClick={drawTripLineF}>Draw Trip Line Tool</button>
+      <button type='button' onClick={drawZoneF}>Draw Zone Tool</button>
+      <button type='button' onClick={drawDestinationF}>Draw Destination Tool</button>
+    </section>
   )
 };
 
