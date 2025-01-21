@@ -11,7 +11,7 @@ import { useSceneEditorContext, RESOLUTIONS } from './SceneEditorProvider';
 import { ActiveRegion } from './SceneEditor.d';
 
 const SceneEditor_Workspace: React.FC = () => {
-  const { drawerRef, addActiveRegion, activeServiceApplet } = useSceneEditorContext();
+  const { drawerRef, scene, addActiveRegion, activeServiceApplet, activeServiceAppletActiveRegion } = useSceneEditorContext();
   const svgContainerRef = useRef<HTMLDivElement | null>(null);
   const SVGContainer = useMemo(() => SVG().size(RESOLUTIONS["16:9"].width, RESOLUTIONS["16:9"].height).attr({ style: `display: block`}), []);
 
@@ -76,6 +76,7 @@ const SceneEditor_Workspace: React.FC = () => {
       id: null,
       tempID: faker.number.int({ min: 1, max: 10000 }), 
       name: `${faker.word.adverb()} ${faker.word.adjective()}`, 
+      typeID: TripLine.typeID,
       type: TripLine.type,
       svg: null,
       app: activeServiceApplet
@@ -89,6 +90,7 @@ const SceneEditor_Workspace: React.FC = () => {
       id: null,
       tempID: faker.number.int({ min: 1, max: 10000 }),
       name: `${faker.word.adverb()} ${faker.word.adjective()}`,
+      typeID: Zone.typeID,
       type: Zone.type,
       svg: null,
       app: activeServiceApplet
@@ -102,6 +104,7 @@ const SceneEditor_Workspace: React.FC = () => {
       id: null,
       tempID: faker.number.int({ min: 1, max: 10000 }),
       name: `${faker.word.adverb()} ${faker.word.adjective()}`,
+      typeID: Destination.typeID,
       type: Destination.type,
       svg: null,
       app: activeServiceApplet
@@ -110,10 +113,34 @@ const SceneEditor_Workspace: React.FC = () => {
     addActiveRegion(destination);
   };
 
+  // Run showHideActiveRegions on scene._unsanitizedSceneObj changes
+  useEffect(() => {
+    if(activeServiceApplet || activeServiceAppletActiveRegion) {
+      showHideActiveRegions();
+    }
+  }, [scene, activeServiceApplet, activeServiceAppletActiveRegion]);
+
+  // Function to show hide active regions by activeServiceApplet
+  const showHideActiveRegions = () => {
+    scene.regions.forEach(activeRegion => {
+      if(activeServiceApplet === activeRegion.app) {
+        if(activeServiceAppletActiveRegion?.typeID === activeRegion.typeID) {
+          activeRegion?.svg.show();
+        } else {
+          activeRegion?.svg.hide();
+        }
+      } else {
+        activeRegion?.svg.hide();
+      }
+    })
+  };
+
   return (
     <section>
       <h3>Workspace/Canvas</h3>
-      <div ref={svgContainerRef} style={{ border: '1px solid #ccc', display: 'inline-block', height: '480px' }}></div>
+      <div style={{ minHeight: '500px' }}>
+        <div ref={svgContainerRef} style={{ border: '1px solid #ccc', display: 'inline-block' }}></div>
+      </div>
     </section>
   );
 };

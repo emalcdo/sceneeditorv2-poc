@@ -12,12 +12,14 @@ export type ServiceApplet = {
   name: string;
   description: string;
   logo: string;
+  activeRegionsAvailable?: { typeID: number, type: string }
 };
 
 export type ActiveRegion = {
   id: number | null;
   tempID: number;
   name: string;
+  typeID: number;
   type: string;
   svg: TripLine | Zone | null,
   app: ServiceApplet

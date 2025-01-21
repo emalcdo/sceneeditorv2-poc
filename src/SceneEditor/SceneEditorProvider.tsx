@@ -8,7 +8,8 @@ import React, {
   useEffect
 } from 'react';
 
-import { Drawer, getActiveRegionTypeByID, getActiveRegionClassTypeByType } from './Drawer/Drawer';
+import { Drawer } from './Drawer/Drawer';
+import { getActiveRegionClassTypeByType, getActiveRegionTypeByID } from './utils';
 import { Scene, ActiveRegion, ServiceApplet } from './SceneEditor.d';
 
 export type SceneEditorContextType = {
@@ -17,6 +18,8 @@ export type SceneEditorContextType = {
   drawerRef: React.MutableRefObject<Drawer | null>;
   activeServiceApplet: ServiceApplet | null,
   setActiveServiceApplet: (serviceApplet: ServiceApplet | null) => void;
+  activeServiceAppletActiveRegion: ServiceApplet["activeRegionsAvailable"] | null,
+  setActiveServiceAppletActiveRegion: (activeServiceAppletActiveRegion: ServiceApplet["activeRegionsAvailable"] | null) => void;
   updateSceneName: (name: string) => void;
   addActiveRegion: (activeRegion: ActiveRegion) => void;
   updateActiveRegion: (id: number, activeRegion: ActiveRegion) => void;
@@ -52,6 +55,7 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
     _unsanitizedSceneObj: null
   });
   const [activeServiceApplet, setActiveServiceApplet] = useState<ServiceApplet | null>(null);
+  const [activeServiceAppletActiveRegion, setActiveServiceAppletActiveRegion] = useState<ServiceApplet["activeRegionsAvailable"] | null>(null);
   const [arToEditInfo, setARToEditInfo] = useState<ARToEditInfo | null>(null);
   const drawerRef = useRef<Drawer | null>(null);
 
@@ -68,6 +72,7 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
       _unsanitizedSceneObj: null
     });
     setActiveServiceApplet(null);
+    setActiveServiceAppletActiveRegion(null);
     setARToEditInfo(null)
     drawerRef.current?.clear();
 
@@ -102,13 +107,21 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
 
         if(sceneFeederServiceAppletsScenable.length) {
           serviceApplets = sceneFeederServiceAppletsScenable.map((serviceApplet: any) => {
-            const { app_id: appID, app: { code, name, description, config: { logo } }} = serviceApplet;
+            const { app_id: appID, app: { code, name, description, config: { logo, active_regions } }} = serviceApplet;
+            const activeRegionsAvailable = active_regions?.map((activeRegion : any) => {
+              return {
+                typeID: activeRegion.type,
+                type: activeRegion.name
+              }
+            });
+
             return {
               appID,
               code,
               name,
               description,
-              logo
+              logo,
+              activeRegionsAvailable
             }
           })
         }
@@ -126,6 +139,9 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
     }));
     if(serviceApplets.length) {
       setActiveServiceApplet(serviceApplets[0]);
+      if(serviceApplets[0].activeRegionsAvailable?.length) {
+        setActiveServiceAppletActiveRegion(serviceApplets[0].activeRegionsAvailable[0]);
+      }
     }
   };
 
@@ -159,6 +175,7 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
           id,
           tempID: id,
           name,
+          typeID,
           type,
           svg: null,
           app
@@ -190,10 +207,12 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
     }
   }, [scene._unsanitizedSceneObj]);
 
-  // Run showHideActiveRegions on scene._unsanitizedSceneObj changes
+  // Run setActiveServiceAppletActiveRegion on activeServiceApplet changes
   useEffect(() => {
     if(activeServiceApplet) {
-      showHideActiveRegions();
+      if(activeServiceApplet.activeRegionsAvailable?.length) {
+        setActiveServiceAppletActiveRegion(activeServiceApplet.activeRegionsAvailable[0]);
+      }
     }
   }, [activeServiceApplet]);
 
@@ -255,13 +274,6 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
     }));
   };
 
-  // Function to show hide active regions by activeServiceApplet
-  const showHideActiveRegions = () => {
-    scene.regions.forEach(activeRegion => {
-      activeServiceApplet === activeRegion.app ? activeRegion?.svg.show() : activeRegion?.svg.hide();
-    })
-  };
-
   // Function to clear scene
   const clearScene = () => {
     removeAllActiveRegions();
@@ -315,6 +327,8 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
     drawerRef,
     activeServiceApplet,
     setActiveServiceApplet,
+    activeServiceAppletActiveRegion,
+    setActiveServiceAppletActiveRegion,
     updateSceneName,
     addActiveRegion,
     updateActiveRegion,
