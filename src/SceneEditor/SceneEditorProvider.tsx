@@ -291,6 +291,9 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
       serviceApplets: [],
       _unsanitizedSceneObj: null
     });
+    setARToEditInfo(null);
+    setActiveServiceApplet(null);
+    setActiveServiceAppletActiveRegion(null);
   };
 
   // Function to save scene
@@ -301,7 +304,7 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
       regions: [],
       usecase: activeServiceApplet?.code
     };
-    scenePayload.regions = scene.regions.map(region => {
+    scenePayload.regions = scene.regions.filter(region => region.app.appID === activeServiceApplet?.appID).map(region => {
       const { id, name } = region;
       const activeRegion : any = {
         id,
@@ -310,6 +313,7 @@ export const SceneEditorProvider: React.FC<SceneEditorProviderProps> = ({ childr
         points: retransformPointsByIdentityID(region.svg.points, scene.identityID)
       };
 
+      // If id is null, remove id
       if(!id) {
         delete activeRegion.id;
       }

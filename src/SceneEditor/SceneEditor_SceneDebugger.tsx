@@ -55,7 +55,7 @@ const sampleScene1 = {
       "feeder_asset": [
           {
               "id": 10840,
-              "asset": "https://viana2.blob.core.windows.net/staging/flatten-images/flatten/flatten-1732857392523-axis_snapshot_1732857204811_62547.png?sv=2024-05-04&st=2025-01-21T00%3A58%3A55Z&se=2025-01-21T08%3A58%3A55Z&sr=b&sp=rw&sig=TwN156cAVTViEpnobMRI84PuBLYASPuL2WoFVoHDUso%3D",
+              "asset": "https://viana2.blob.core.windows.net/staging/flatten-images/flatten/flatten-1732857392523-axis_snapshot_1732857204811_62547.png?sv=2024-05-04&st=2025-01-22T01%3A00%3A57Z&se=2025-01-22T09%3A00%3A57Z&sr=b&sp=rw&sig=Cs%2FibGSRbJziYq9xfCRunnDCPzxE2llqM3ewChNr%2FhE%3D",
               "config": {
                   "k1": 0.285,
                   "k2": 0.004,
